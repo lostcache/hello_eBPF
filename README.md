@@ -79,5 +79,26 @@ sudo cat /sys/kernel/debug/tracing/trace_pipe
 - `vmlinux.h/`: BPF CO-RE headers (submodule).
 - `test/`: Verification scripts and tests.
 
+## Technical Deep Dive: The eBPF Stack
+
+Understanding the libraries and tools used in this project is key to mastering eBPF development:
+
+### Core Libraries
+- **libbpf**: The industry-standard loader library. It handles the complexity of loading BPF bytecode into the kernel, verifying it, and attaching it to hooks (tracepoints, kprobes, etc.).
+- **libelf**: Used by `libbpf` to parse ELF (Executable and Linkable Format) files. Since compiled BPF programs are stored as ELF objects, this library is essential for reading the bytecode and metadata.
+- **zlib**: Used for decompression. Modern kernels store BPF Type Format (BTF) data in a compressed format; `libbpf` uses `zlib` to read this data for CO-RE (Compile Once – Run Everywhere) support.
+
+### Development Tools & Headers
+- **bpftool**: The "Swiss Army Knife" for eBPF. In this project, it's used to generate **BPF Skeletons**—C headers that allow user-space code to easily interact with BPF programs and maps as if they were standard C structures.
+- **vmlinux.h**: A single, massive header file containing every data structure defined in the Linux kernel. It eliminates the need for multiple kernel headers and is the foundation of BPF CO-RE.
+- **blazesym**: A high-performance symbolization library. It converts raw kernel memory addresses into human-readable function names and source code line numbers, which is vital for profiling and tracing tools.
+
+### The Workflow
+1. **Clang** compiles C code into BPF bytecode (ELF format).
+2. **bpftool** generates a "Skeleton" header from the bytecode.
+3. **User-space C code** includes the Skeleton and uses **libbpf** to load the program.
+4. **libbpf** uses **libelf** and **zlib** to verify and attach the program to the kernel.
+5. **blazesym** (optional) symbolizes any addresses captured by the BPF program for human consumption.
+
 ## License
 Dual BSD/GPL (Inherited from libbpf-bootstrap).
