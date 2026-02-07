@@ -21,7 +21,8 @@ The project structure was initialized using `libbpf-bootstrap`:
 
 1.  Cloned `libbpf-bootstrap` (with submodules).
 2.  Extracted files to the project root.
-3.  Verified the build by running `make` in `examples/c`.
+3.  Correctly registered submodules (`libbpf`, `bpftool`, `blazesym`, `vmlinux.h`) in `.gitmodules`.
+4.  Verified the build by running `make` in `examples/c`.
 
 ### Verification
 Dependency status was verified using `./test/verify_deps.sh`:
