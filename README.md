@@ -72,10 +72,12 @@ sudo cat /sys/kernel/debug/tracing/trace_pipe
 
 ## Project Structure
 - `conductor/`: Project management, plans, and technical specifications.
-- `examples/c/`: C-based eBPF examples.
-- `libbpf/`: The libbpf library (submodule).
+- `examples/c/`: C-based eBPF examples and demo applications.
+- `libbpf/`: The core libbpf library (submodule).
+- `bpftool/`: BPF inspection and management tool (submodule).
+- `blazesym/`: Symbolization library for stacktraces (submodule).
+- `vmlinux.h/`: BPF CO-RE headers (submodule).
 - `test/`: Verification scripts and tests.
-- `vmlinux.h/`: BPF CO-RE headers.
 
 ## License
 Dual BSD/GPL (Inherited from libbpf-bootstrap).
