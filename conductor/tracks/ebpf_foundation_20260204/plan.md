@@ -1,8 +1,8 @@
 # Implementation Plan - Establish the eBPF Development Foundation (Phase 1)
 
 ## Phase 1: Environment & Toolchain Setup
-- [ ] Task: Install System Dependencies (Clang, LLVM, Make, libelf, zlib)
-    - [ ] Verify `clang --version` and `make --version`
+- [x] Task: Install System Dependencies (Clang, LLVM, Make, libelf, zlib)
+    - [x] Verify `clang --version` and `make --version`
 - [ ] Task: Set up `libbpf-bootstrap` Scaffolding
     - [ ] Clone the repository or initialize the structure
     - [ ] Verify build of existing examples (`minimal` or `hello`)
