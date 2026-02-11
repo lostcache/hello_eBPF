@@ -28,3 +28,15 @@ The project structure was initialized using `libbpf-bootstrap`:
 Dependency status was verified using `./test/verify_deps.sh`:
 - Clang, LLVM-strip, Make, Bpftool, Pkg-config: OK
 - libelf, zlib headers: OK
+
+## 2026-02-11: SPDK Dependencies
+
+### System Dependencies
+Installed SPDK system dependencies (including Cunit, libaio, libfuse3, etc.) using the provided script:
+
+```bash
+cd spdk
+sudo ./scripts/pkgdep.sh
+```
+
+Verified environment configuration by running `./configure` successfully.
