@@ -12,7 +12,7 @@
   - **Details:** Run `spdk/scripts/pkgdep.sh` to install dependencies.
   - **Verification:** Script completes successfully.
 
-- [ ] Build SPDK
+- [x] Build SPDK 0f91dbf
   - **Goal:** Compile the toolkit.
   - **Details:** Run `./configure` and `make` inside the `spdk` directory.
   - **Verification:** `build/bin/nvmf_tgt` executable exists.
