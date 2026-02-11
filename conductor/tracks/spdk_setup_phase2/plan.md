@@ -7,7 +7,7 @@
   - **Details:** Clone `https://github.com/spdk/spdk` into the project root. Initialize submodules.
   - **Verification:** Directory `spdk` exists and contains source files.
 
-- [ ] Install SPDK Dependencies
+- [x] Install SPDK Dependencies e42e700
   - **Goal:** Ensure system has required libraries.
   - **Details:** Run `spdk/scripts/pkgdep.sh` to install dependencies.
   - **Verification:** Script completes successfully.
