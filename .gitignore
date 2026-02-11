@@ -1,3 +1,4 @@
 .opencode
 examples/c/.output/
 examples/c/hello
+spdk/
