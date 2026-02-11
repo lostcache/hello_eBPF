@@ -17,7 +17,7 @@
   - **Details:** Run `./configure` and `make` inside the `spdk` directory.
   - **Verification:** `build/bin/nvmf_tgt` executable exists.
 
-- [ ] Configure System (Hugepages)
+- [x] Configure System (Hugepages) 6229cb3
   - **Goal:** Reserve memory for SPDK.
   - **Details:** Run `spdk/scripts/setup.sh`.
   - **Verification:** Script indicates hugepages are allocated.
