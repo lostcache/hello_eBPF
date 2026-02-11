@@ -22,7 +22,7 @@
   - **Details:** Run `spdk/scripts/setup.sh`.
   - **Verification:** Script indicates hugepages are allocated.
 
-- [ ] Verify NVMe Target
+- [x] Verify NVMe Target 8f94c1c
   - **Goal:** Confirm the target runs and responds to RPCs.
   - **Details:** Start `nvmf_tgt` in the background. Run `scripts/rpc.py spdk_get_version` to check connectivity. Kill the background process afterwards.
   - **Verification:** Version information is printed to stdout.
