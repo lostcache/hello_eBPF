@@ -29,7 +29,7 @@ Dependency status was verified using `./test/verify_deps.sh`:
 - Clang, LLVM-strip, Make, Bpftool, Pkg-config: OK
 - libelf, zlib headers: OK
 
-## 2026-02-11: SPDK Dependencies
+## 2026-02-11: SPDK Dependencies & Configuration
 
 ### System Dependencies
 Installed SPDK system dependencies (including Cunit, libaio, libfuse3, etc.) using the provided script:
@@ -40,3 +40,12 @@ sudo ./scripts/pkgdep.sh
 ```
 
 Verified environment configuration by running `./configure` successfully.
+
+### Hugepages Configuration
+SPDK requires hugepages. The setup script was run to allocate memory and configure the environment:
+
+```bash
+sudo ./spdk/scripts/setup.sh
+```
+
+**Verification:** Checked `/proc/meminfo` and confirmed `HugePages_Total` is non-zero (e.g., 1024).
