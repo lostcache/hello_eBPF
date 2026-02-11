@@ -1,104 +1,99 @@
 # hello_eBPF
 
-A foundational project for exploring eBPF (Extended Berkeley Packet Filter) on Linux, starting from environment setup and "Hello World" to complex kernel interactions.
+A foundational project for exploring eBPF (Extended Berkeley Packet Filter) on Linux, specifically focusing on its application in Computational Storage and NVMe Offloading.
 
-## Current Status: Phase 1 Complete (Environment & Scaffolding)
-The development environment is fully established, and the `libbpf-bootstrap` scaffolding is integrated and verified.
+This project implements the roadmap from "zero" to running code on a simulated NVMe drive, mirroring the path to implementing standard TP4091.
+
+## Current Status: Phase 2 Complete (SPDK Setup & NVMe Simulation)
+We have successfully established the "Fake Hardware" environment.
+- **eBPF Environment:** Fully configured with `libbpf`, `clang`, and `bpftool`.
+- **NVMe Simulation:** SPDK (Storage Performance Development Kit) is built and configured.
+- **Target Status:** The user-space NVMe target (`nvmf_tgt`) runs and accepts RPC commands.
+
+## Roadmap
+- [x] **Phase 1: The "Hello World" of eBPF:** Establish the toolchain and run a basic kernel tracepoint.
+- [x] **Phase 2: Build the "Fake" Hardware:** Compile SPDK and run a virtual NVMe controller.
+- [ ] **Phase 3: TP4091 Command Implementation:** Implement the custom "Load Program" command in SPDK.
+- [ ] **Phase 4: The "Thesis" Project:** Offload eBPF logic to the simulated drive to filter data at the source.
 
 ## Getting Started
 
-### System Dependencies
-To build and run eBPF programs on Ubuntu 24.04 (Noble), the following packages are required:
+### 1. Prerequisites
+- **OS:** Linux (Ubuntu 24.04 Recommended).
+- **Privileges:** `sudo` access is required for installing dependencies and allocating hugepages.
+
+### 2. Install Dependencies
+To build both the eBPF examples and the SPDK environment:
 
 ```bash
+# eBPF Toolchain
 sudo apt-get update
 sudo apt-get install -y clang llvm make libelf-dev zlib1g-dev linux-tools-common linux-tools-generic pkg-config gcc
+
+# SPDK Dependencies (via script)
+cd spdk
+sudo ./scripts/pkgdep.sh
+cd ..
 ```
 
-*Note: `bpftool` is provided by the `linux-tools-generic` package on Ubuntu.*
-
-### Environment Setup
-The project uses `libbpf-bootstrap` as its foundational scaffolding. This provides:
-- `libbpf`: The core library for interacting with BPF.
-- `bpftool`: A tool for inspection and management of BPF programs and maps.
-- `vmlinux.h`: BPF CO-RE (Compile Once – Run Everywhere) headers.
-
-To initialize the environment (already completed for this repo):
-1.  Cloned `libbpf-bootstrap` with submodules.
-2.  Verified the toolchain by building the `minimal` example.
-
-## Verification
-
-You can verify that your system has all necessary dependencies by running the included test script:
-
-```bash
-./test/verify_deps.sh
-```
-
-### Expected Output:
-```text
-Checking system dependencies...
-✅ clang is installed: ...
-✅ llvm-strip is installed: ...
-✅ make is installed: ...
-✅ bpftool is installed: ...
-✅ pkg-config is installed: ...
-✅ libelf headers are installed
-✅ zlib headers are installed
-All dependencies verified successfully.
-```
-
-## Building Examples
-
-The project includes several examples in the `examples/c` directory from the bootstrap project. To build them:
-
+### 3. Build the Project
+**Build eBPF Examples:**
 ```bash
 cd examples/c
 make
+cd ../..
 ```
 
-### Running "Minimal"
-`minimal` installs a tracepoint handler triggered every second. 
+**Build SPDK (Simulated NVMe):**
+```bash
+cd spdk
+./configure
+make -j$(nproc)
+cd ..
+```
 
+### 4. Configure Hugepages
+SPDK requires hugepages for Direct Memory Access (DMA). **You must run this after every reboot.**
+
+```bash
+sudo spdk/scripts/setup.sh
+```
+
+## Usage
+
+### Running eBPF Examples
+The `examples/c` directory contains standard libbpf examples.
 ```bash
 cd examples/c
 sudo ./minimal
 ```
+*Check `/sys/kernel/debug/tracing/trace_pipe` to see the output.*
 
-To see the output, read the trace pipe:
-```bash
-sudo cat /sys/kernel/debug/tracing/trace_pipe
-```
+### Running the Simulated NVMe Drive
+To start the NVMe Target (which simulates the computational storage drive):
+
+1.  **Start the Target (in one terminal):**
+    ```bash
+    sudo spdk/build/bin/nvmf_tgt
+    ```
+    *This process will hang as it acts as the server.*
+
+2.  **Interact via RPC (in another terminal):**
+    SPDK uses JSON-RPC for management.
+    ```bash
+    sudo spdk/scripts/rpc.py spdk_get_version
+    ```
+    *You should see a JSON response with the SPDK version.*
 
 ## Project Structure
-- `conductor/`: Project management, plans, and technical specifications.
-- `examples/c/`: C-based eBPF examples and demo applications.
-- `libbpf/`: The core libbpf library (submodule).
-- `bpftool/`: BPF inspection and management tool (submodule).
-- `blazesym/`: Symbolization library for stacktraces (submodule).
-- `vmlinux.h/`: BPF CO-RE headers (submodule).
-- `test/`: Verification scripts and tests.
+- `conductor/`: Project plans, tracks, and technical documentation.
+- `spdk/`: The Storage Performance Development Kit (Simulated Hardware).
+- `examples/c/`: C-based eBPF examples.
+- `libbpf/`: Core BPF library.
+- `bpftool/`: BPF inspection tool.
 
-## Technical Deep Dive: The eBPF Stack
-
-Understanding the libraries and tools used in this project is key to mastering eBPF development:
-
-### Core Libraries
-- **libbpf**: The industry-standard loader library. It handles the complexity of loading BPF bytecode into the kernel, verifying it, and attaching it to hooks (tracepoints, kprobes, etc.).
-- **libelf**: Used by `libbpf` to parse ELF (Executable and Linkable Format) files. Since compiled BPF programs are stored as ELF objects, this library is essential for reading the bytecode and metadata.
-- **zlib**: Used for decompression. Modern kernels store BPF Type Format (BTF) data in a compressed format; `libbpf` uses `zlib` to read this data for CO-RE (Compile Once – Run Everywhere) support.
-
-### Development Tools & Headers
-- **bpftool**: The "Swiss Army Knife" for eBPF. In this project, it's used to generate **BPF Skeletons**—C headers that allow user-space code to easily interact with BPF programs and maps as if they were standard C structures.
-- **vmlinux.h**: A single, massive header file containing every data structure defined in the Linux kernel. It eliminates the need for multiple kernel headers and is the foundation of BPF CO-RE.
-- **blazesym**: A high-performance symbolization library. It converts raw kernel memory addresses into human-readable function names and source code line numbers, which is vital for profiling and tracing tools.
-
-### The Workflow
-1. **Clang** compiles C code into BPF bytecode (ELF format).
-2. **bpftool** generates a "Skeleton" header from the bytecode.
-3. **User-space C code** includes the Skeleton and uses **libbpf** to load the program.
-4. **libbpf** uses **libelf** and **zlib** to verify and attach the program to the kernel.
-5. **blazesym** (optional) symbolizes any addresses captured by the BPF program for human consumption.
+## Technical Context
+This project combines **eBPF** (kernel-level sandboxed execution) with **SPDK** (user-space storage drivers) to simulate **Computational Storage**. By running eBPF programs *inside* the SPDK target, we mimic the behavior of next-generation SSDs that can process data directly on the drive, reducing bus traffic and CPU load.
 
 ## License
 Dual BSD/GPL (Inherited from libbpf-bootstrap).
