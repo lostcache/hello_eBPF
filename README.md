@@ -4,15 +4,47 @@ A foundational project for exploring eBPF (Extended Berkeley Packet Filter) on L
 
 This project implements the roadmap from "zero" to running code on a simulated NVMe drive, mirroring the path to implementing standard TP4091.
 
-## Current Status: Phase 2 Complete (SPDK Setup & NVMe Simulation)
-We have successfully established the "Fake Hardware" environment.
-- **eBPF Environment:** Fully configured with `libbpf`, `clang`, and `bpftool`.
-- **NVMe Simulation:** SPDK (Storage Performance Development Kit) is built and configured.
-- **Target Status:** The user-space NVMe target (`nvmf_tgt`) runs and accepts RPC commands.
+## Current Status: Phase 3a Complete (Baseline Benchmark)
+We have successfully established the "Control Group" and the NVMe-oF connection.
+- **Baseline App:** A standard C application (`benchmarks/baseline`) is ready to measure standard read performance.
+- **NVMe-oF Connection:** Scripts are in place to connect the Linux Kernel to the SPDK target via TCP loopback.
+- **Data Generation:** Tools to generate verifiable test datasets.
+
+## Architecture: NVMe over Fabrics & eBPF
+Our simulated environment uses NVMe over Fabrics (TCP) to route storage traffic through the kernel's networking stack. This allows us to use standard networking eBPF hooks to intercept storage commands.
+
+```ascii
++-----------------------------------------------------------------------+
+|                          HOST (Linux Kernel)                          |
+|                                                                       |
+|   +-------------+       +-------------+       +-------------+         |
+|   | Application |<----->| File System |<----->| Block Layer |         |
+|   | (baseline)  |       |   (ext4)    |       | (/dev/nvme) |         |
+|   +-------------+       +-------------+       +------+------+         |
+|                                                      |                |
+|                                              +-------v--------+       |
+|                                              |   NVMe TCP     |       |
+|                                              |    Driver      |       |
+|                                              +-------+--------+       |
+|                                                      |                |
+|         [eBPF Hook Point] <------------------+-------v--------+       |
+|    (Traffic Inspection/Filter)               |  TCP/IP Stack  |       |
+|                                              +-------+--------+       |
+|                                                      |                |
+|                                                (Loopback lo)          |
++------------------------------------------------------|----------------+
+                                                       |
+                                             +---------v---------+
+                                             |  SPDK NVMe Target |
+                                             |   (User Space)    |
+                                             |  [Fake Hardware]  |
+                                             +-------------------+
+```
 
 ## Roadmap
 - [x] **Phase 1: The "Hello World" of eBPF:** Establish the toolchain and run a basic kernel tracepoint.
 - [x] **Phase 2: Build the "Fake" Hardware:** Compile SPDK and run a virtual NVMe controller.
+- [x] **Phase 3a: Baseline Benchmark:** Implement standard app and NVMe-oF connection.
 - [ ] **Phase 3: TP4091 Command Implementation:** Implement the custom "Load Program" command in SPDK.
 - [ ] **Phase 4: The "Thesis" Project:** Offload eBPF logic to the simulated drive to filter data at the source.
 
@@ -94,6 +126,9 @@ To start the NVMe Target (which simulates the computational storage drive):
 
 ## Technical Context
 This project combines **eBPF** (kernel-level sandboxed execution) with **SPDK** (user-space storage drivers) to simulate **Computational Storage**. By running eBPF programs *inside* the SPDK target, we mimic the behavior of next-generation SSDs that can process data directly on the drive, reducing bus traffic and CPU load.
+
+### NVMe-oF Emulation Mechanism
+The project utilizes the Linux kernel's `nvme-tcp` module to initiate a connection to the user-space SPDK target. Upon connection, the kernel instantiates a standard block device (e.g., `/dev/nvme0n1`). I/O requests to this device are encapsulated as NVMe commands within TCP packets and transmitted over the loopback interface. The SPDK target receives these commands and executes them against a malloc-backed namespace (RAM drive), enabling high-performance storage simulation without physical NVMe hardware.
 
 ## License
 Dual BSD/GPL (Inherited from libbpf-bootstrap).

@@ -51,6 +51,7 @@ The above is not the final plan. It still needs a ton of refinement and research
 ## Key Features & Milestones
 - **eBPF Environment:** Establish a robust C-based development environment using libbpf-bootstrap.
 - **Virtual NVMe Controller:** Integrate QEMU and SPDK to simulate a compliant NVMe device.
+- **Baseline Benchmark:** Performance baseline established using standard C application and NVMe-oF connection scripts.
 - **Offloading Protocol:** Implement the "Load Program" command within SPDK to mimic the TP4091 offloading mechanism.
 
 ## Success Criteria

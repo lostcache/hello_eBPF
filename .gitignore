@@ -2,3 +2,7 @@
 examples/c/.output/
 examples/c/hello
 spdk/
+*.dat
+*.log
+.DS_Store
+benchmarks/baseline

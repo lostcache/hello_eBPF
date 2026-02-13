@@ -1,0 +1,5 @@
+- [x] Task: Create `benchmarks` directory and implement `baseline.c` (the "Standard App"). [commit: manual]
+- [x] Task: Create `scripts/generate_data.sh` to create a deterministic test file. [commit: manual]
+- [x] Task: Create `scripts/start_spdk_tgt.sh` to configure and launch SPDK with a RAM-drive namespace. [commit: manual]
+- [x] Task: Create `scripts/connect_host.sh` to connect the local kernel to the SPDK target. [commit: manual]
+- [x] Task: Execute the benchmark and save results to `docs/phase_3a_results.md`. [commit: manual]
